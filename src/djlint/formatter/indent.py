@@ -12,12 +12,13 @@ from ..helpers import (
 )
 from ..settings import Config
 from .attributes import format_attributes
+import logging
 
 
 def indent_html(rawcode: str, config: Config) -> str:
     """Indent raw code."""
+    logging.basicConfig(level="DEBUG", filename='app.log', filemode='w', format='{%(lineno)d} %(levelname)s - %(message)s')
     rawcode_flat_list = re.split("\n", rawcode)
-
     indent = config.indent
 
     beautified_code = ""
@@ -43,10 +44,12 @@ def indent_html(rawcode: str, config: Config) -> str:
 
         # if a raw tag then start ignoring
         if is_ignored_block_opening(config, item):
+            logging.debug(f"ignored block opening\t{item}")
             is_block_raw = True
             ignored_level += 1
 
         if is_safe_closing_tag(config, item):
+            logging.debug(f"safe closing tag\t{item}")
             ignored_level -= 1
             ignored_level = max(ignored_level, 0)
             if is_block_raw is True and ignored_level == 0:
@@ -59,6 +62,7 @@ def indent_html(rawcode: str, config: Config) -> str:
             and is_block_raw is False
         ):
             tmp = (indent * indent_level) + item + "\n"
+            logging.debug(tmp)
 
         # if a one-line, inline tag, just process it, only if line starts w/ it
         # or if it is trailing text
@@ -82,6 +86,7 @@ def indent_html(rawcode: str, config: Config) -> str:
             and is_block_raw is False
         ):
             tmp = (indent * indent_level) + item + "\n"
+            logging.debug(tmp)
 
         # if unindent, move left
         elif (
@@ -128,6 +133,7 @@ def indent_html(rawcode: str, config: Config) -> str:
             else:
                 indent_level = max(indent_level - 1, 0)
                 tmp = (indent * indent_level) + item + "\n"
+            logging.debug(tmp)
 
         elif (
             re.search(
@@ -138,6 +144,7 @@ def indent_html(rawcode: str, config: Config) -> str:
             and is_block_raw is False
         ):
             tmp = (indent * (indent_level - 1)) + item + "\n"
+            logging.debug(tmp)
 
         # if indent, move right
         elif (
@@ -152,15 +159,18 @@ def indent_html(rawcode: str, config: Config) -> str:
         ):
 
             tmp = (indent * indent_level) + item + "\n"
+            logging.debug(tmp)
             indent_level = indent_level + 1
 
         elif is_raw_first_line is True or (
             is_safe_closing_tag(config, item) and is_block_raw is False
         ):
             tmp = (indent * indent_level) + item + "\n"
+            logging.debug(tmp)
 
         elif is_block_raw is True or item.strip() == "":
             tmp = item + "\n"
+            logging.debug(tmp)
 
         # otherwise, just leave same level
         else:
@@ -170,6 +180,7 @@ def indent_html(rawcode: str, config: Config) -> str:
                 tmp = (indent * indent_level) + item + "\n"
             else:
                 tmp = item + "\n"
+        logging.debug(tmp)
 
         # if a opening raw tag then start ignoring.. only if there is no closing tag
         # on the same line
@@ -182,6 +193,7 @@ def indent_html(rawcode: str, config: Config) -> str:
             # get leading space, and attributes
             func = partial(format_attributes, config, item)
 
+            logging.debug(tmp)
             tmp = re.sub(
                 re.compile(
                     rf"(\s*?)(<(?:{config.indent_html_tags})\b)((?:\"[^\"]*\"|'[^']*'|{{[^}}]*}}|[^'\">{{}}])+?)(/?>)",
@@ -190,6 +202,7 @@ def indent_html(rawcode: str, config: Config) -> str:
                 func,
                 tmp,
             )
+            logging.debug(tmp)
 
         # turn off raw block if we hit end - for one line raw blocks, but not an inline raw
         if is_ignored_block_closing(config, item):
@@ -199,6 +212,7 @@ def indent_html(rawcode: str, config: Config) -> str:
             if ignored_level == 0:
                 is_block_raw = False
 
+        logging.debug(tmp)
         beautified_code = beautified_code + tmp
 
     # we can try to fix template tags. ignore handlebars
