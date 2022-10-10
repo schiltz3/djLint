@@ -6,6 +6,7 @@ import regex as re
 
 from ..helpers import inside_ignored_block
 from ..settings import Config
+import logging
 
 
 def format_template_tags(config: Config, attributes: str) -> str:
@@ -260,6 +261,7 @@ def format_attributes(config: Config, html: str, match: re.match) -> str:
     attributes = (spacing).join(
         re.findall(config.attribute_pattern, match.group(3).strip(), re.VERBOSE)
     )
+    logging.debug(attributes)
 
     close = match.group(4)
 
