@@ -1,20 +1,13 @@
 {% extends "bar_base.html" %}
 {% load static %}
 {% block application_pane %}
-    <div class="character-header">
         <img src={% static "Character_Header.png" %}
              alt="Character Header"
              style="width: 45%"/>
-    </div>
-    <div class="character-statblock">
-        <div class="character-stat">
             <img src={% static "Character_UI_Stat.png" %}
                  alt="Character UI Stat"
                  style="width: 100%"/>
-            <div class="character-stat-title">STRENGTH</div>
-        </div>
         <img src={% static "Character_UI_Stat.png" %}
               alt="Character UI Stat"
               style="width: 100%"/>
-    </div>
 {% endblock application_pane %}
