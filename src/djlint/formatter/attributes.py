@@ -251,16 +251,21 @@ def format_attributes(config: Config, html: str, match: re.match) -> str:
     ):
         return match.group()
 
+    logging.debug(match)
+
     leading_space = match.group(1)
 
     tag = match.group(2) + " "
 
     spacing = "\n" + leading_space + len(tag) * " "
 
+    logging.debug(config.attribute_pattern)
+    logging.debug(match.group(3).strip())
+    logging.debug(re.VERBOSE)
+    temp_debug = re.findall(config.attribute_pattern, match.group(3).strip(), re.VERBOSE)
+    logging.debug(temp_debug)
     # format attributes as groups
-    attributes = (spacing).join(
-        re.findall(config.attribute_pattern, match.group(3).strip(), re.VERBOSE)
-    )
+    attributes = (spacing).join(temp_debug)
     logging.debug(attributes)
 
     close = match.group(4)
